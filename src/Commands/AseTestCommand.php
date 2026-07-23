@@ -15,7 +15,7 @@ final class AseTestCommand extends Command
 
     public function handle(): int
     {
-        $dsn = (string) config('ase.dsn', '');
+        $dsn = $this->effectiveDsn();
         $this->line('ASE enabled: '.((bool) config('ase.enabled') ? 'yes' : 'no'));
         $this->line('ASE transport: '.(string) config('ase.transport', 'sync'));
         $this->line('ASE queue: '.(string) config('ase.queue', 'ase'));
@@ -31,6 +31,9 @@ final class AseTestCommand extends Command
             $parsed = Dsn::parse($dsn);
             $this->line('ASE endpoint: '.$parsed->endpoint);
             $this->line('ASE key id: '.$parsed->keyId);
+            if (! str_starts_with($parsed->keyId, 'sk_ase_')) {
+                $this->warn('ASE key id should normally start with sk_ase_. You appear to be using a database id instead of the server credential public_identifier.');
+            }
         } catch (\Throwable $throwable) {
             $this->error('Invalid ASE_DSN: '.$throwable->getMessage());
 
@@ -50,5 +53,30 @@ final class AseTestCommand extends Command
         $this->line('If the event is not visible, set ASE_DEBUG=true and check laravel.log for "ASE transport rejected event batch".');
 
         return self::SUCCESS;
+    }
+
+    private function effectiveDsn(): string
+    {
+        $dsn = (string) config('ase.dsn', '');
+        if ($dsn !== '') {
+            return $dsn;
+        }
+
+        $token = (string) config('ase.token', '');
+        $endpoint = (string) config('ase.endpoint', '');
+        if ($token === '' || $endpoint === '') {
+            return '';
+        }
+
+        $parts = parse_url($endpoint);
+        if (! is_array($parts) || ! isset($parts['scheme'], $parts['host'])) {
+            return '';
+        }
+
+        $path = $parts['path'] ?? '/api/v1/ingest/envelope';
+        $port = isset($parts['port']) ? ':'.$parts['port'] : '';
+        $query = isset($parts['query']) ? '?'.$parts['query'] : '';
+
+        return $parts['scheme'].'://'.rawurlencode($token).'@'.$parts['host'].$port.$path.$query;
     }
 }

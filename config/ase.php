@@ -2,6 +2,8 @@
 
 return [
     'dsn' => env('ASE_DSN'),
+    'token' => env('ASE_TOKEN'),
+    'endpoint' => env('ASE_ENDPOINT', 'https://api-ase.parkwebit.nl/api/v1/ingest/envelope'),
     'enabled' => env('ASE_ENABLED', true),
     'release' => env('ASE_RELEASE'),
     'environment' => env('ASE_ENVIRONMENT', env('APP_ENV')),

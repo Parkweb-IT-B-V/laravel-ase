@@ -26,7 +26,9 @@ final class AseServiceProvider extends ServiceProvider
     {
         $this->mergeConfigFrom(__DIR__.'/../config/ase.php', 'ase');
         $this->app->singleton(Client::class, function (): Client {
-            $options = ClientOptions::fromArray(config('ase'));
+            $config = config('ase');
+            $config['dsn'] = $this->effectiveDsn($config);
+            $options = ClientOptions::fromArray($config);
             $transport = $this->transport($options);
 
             return new Client($options, $transport);
@@ -79,5 +81,31 @@ final class AseServiceProvider extends ServiceProvider
         }
 
         return new NullTransport;
+    }
+
+    /** @param array<string, mixed> $config */
+    private function effectiveDsn(array $config): string
+    {
+        $dsn = (string) ($config['dsn'] ?? '');
+        if ($dsn !== '') {
+            return $dsn;
+        }
+
+        $token = (string) ($config['token'] ?? '');
+        $endpoint = (string) ($config['endpoint'] ?? '');
+        if ($token === '' || $endpoint === '') {
+            return '';
+        }
+
+        $parts = parse_url($endpoint);
+        if (! is_array($parts) || ! isset($parts['scheme'], $parts['host'])) {
+            return '';
+        }
+
+        $path = $parts['path'] ?? '/api/v1/ingest/envelope';
+        $port = isset($parts['port']) ? ':'.$parts['port'] : '';
+        $query = isset($parts['query']) ? '?'.$parts['query'] : '';
+
+        return $parts['scheme'].'://'.rawurlencode($token).'@'.$parts['host'].$port.$path.$query;
     }
 }

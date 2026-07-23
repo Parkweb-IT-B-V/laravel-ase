@@ -17,7 +17,8 @@ php artisan optimize:clear
 Configure:
 
 ```env
-ASE_DSN=https://sk_ase_key_id:server-secret@api-ase.parkwebit.nl/api/v1/ingest/envelope
+ASE_TOKEN=sk_ase_full_server_token
+ASE_ENDPOINT=https://api-ase.parkwebit.nl/api/v1/ingest/envelope
 ASE_ENABLED=true
 ASE_RELEASE=${APP_VERSION}
 ASE_ENVIRONMENT=production
@@ -32,6 +33,8 @@ Config file:
 ```php
 return [
     'dsn' => env('ASE_DSN'),
+    'token' => env('ASE_TOKEN'),
+    'endpoint' => env('ASE_ENDPOINT', 'https://api-ase.parkwebit.nl/api/v1/ingest/envelope'),
     'enabled' => env('ASE_ENABLED', true),
     'release' => env('ASE_RELEASE'),
     'capture_warnings' => true,
@@ -39,6 +42,8 @@ return [
     'sample_rate' => 1.0,
 ];
 ```
+
+`ASE_DSN` is still supported for older installs. For new Laravel installs, prefer `ASE_TOKEN` + `ASE_ENDPOINT`.
 
 What is captured automatically:
 
@@ -82,8 +87,7 @@ ASE transport rejected event batch
 Common causes:
 
 - DSN host points to the wrong API domain.
-- DSN key id is not the server credential public identifier.
-- DSN secret is not the plaintext server key.
+- `ASE_TOKEN` uses a database ULID like `01...` instead of the full server token.
 - The server key is revoked or expired.
 - `ASE_TRANSPORT=queue` is configured but no queue worker is running.
 - API returns `422` because the installed SDK package is stale.
