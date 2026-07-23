@@ -1,0 +1,25 @@
+{
+  "name": "parkweb/ase-laravel",
+  "description": "Laravel integration for All Seeing Eye.",
+  "type": "library",
+  "license": "proprietary",
+  "require": {
+    "php": "^8.2",
+    "illuminate/support": "^10.0|^11.0|^12.0",
+    "illuminate/contracts": "^10.0|^11.0|^12.0",
+    "parkweb/ase-php": "^0.1"
+  },
+  "autoload": {
+    "psr-4": {
+      "ParkWeb\\Ase\\Laravel\\": "src/"
+    }
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "ParkWeb\\Ase\\Laravel\\AseServiceProvider"
+      ]
+    }
+  },
+  "minimum-stability": "stable"
+}
