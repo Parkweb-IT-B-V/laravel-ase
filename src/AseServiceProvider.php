@@ -11,6 +11,7 @@ use ParkWeb\Ase\Client;
 use ParkWeb\Ase\ClientOptions;
 use ParkWeb\Ase\Dsn;
 use ParkWeb\Ase\ErrorHandler;
+use ParkWeb\Ase\Laravel\Commands\AseTestCommand;
 use ParkWeb\Ase\Laravel\Listeners\CaptureCommandFailure;
 use ParkWeb\Ase\Laravel\Listeners\CaptureQueueFailure;
 use ParkWeb\Ase\Laravel\Middleware\AseContextMiddleware;
@@ -46,6 +47,10 @@ final class AseServiceProvider extends ServiceProvider
             $router = $this->app['router'];
             $router->pushMiddlewareToGroup('web', AseContextMiddleware::class);
             $router->pushMiddlewareToGroup('api', AseContextMiddleware::class);
+        }
+
+        if ($this->app->runningInConsole()) {
+            $this->commands([AseTestCommand::class]);
         }
     }
 

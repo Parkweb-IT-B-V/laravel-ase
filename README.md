@@ -24,6 +24,7 @@ ASE_ENVIRONMENT=production
 ASE_DEPLOY_ID=${FORGE_DEPLOYMENT_ID}
 ASE_TRANSPORT=queue
 ASE_QUEUE=ase
+ASE_DEBUG=false
 ```
 
 Config file:
@@ -54,6 +55,38 @@ Transport note:
 
 - `ASE_TRANSPORT=sync` sends during the request and is easiest for testing.
 - `ASE_TRANSPORT=queue` only sends when an `ase` queue worker is running.
+
+## Debugging delivery
+
+Start with sync transport:
+
+```env
+ASE_TRANSPORT=sync
+ASE_DEBUG=true
+```
+
+Clear config and send a test event:
+
+```bash
+php artisan optimize:clear
+php artisan ase:test
+php artisan ase:test --exception
+```
+
+If ASE rejects the event, check `storage/logs/laravel.log` for:
+
+```text
+ASE transport rejected event batch
+```
+
+Common causes:
+
+- DSN host points to the wrong API domain.
+- DSN key id is not the server credential public identifier.
+- DSN secret is not the plaintext server key.
+- The server key is revoked or expired.
+- `ASE_TRANSPORT=queue` is configured but no queue worker is running.
+- API returns `422` because the installed SDK package is stale.
 
 Safety:
 

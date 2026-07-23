@@ -7,6 +7,7 @@ return [
     'environment' => env('ASE_ENVIRONMENT', env('APP_ENV')),
     'deploy_id' => env('ASE_DEPLOY_ID'),
     'capture_warnings' => true,
+    'debug' => env('ASE_DEBUG', false),
     'send_default_pii' => false,
     'sample_rate' => 1.0,
     'timeout' => 1.5,
