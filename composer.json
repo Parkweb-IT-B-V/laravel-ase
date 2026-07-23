@@ -12,7 +12,7 @@
     "monolog/monolog": "^3.0",
     "nyholm/psr7": "^1.8",
     "php-http/discovery": "^1.20",
-    "parkweb/ase-php": "^0.1.1"
+    "parkweb/ase-php": "^0.1.2"
   },
   "autoload": {
     "psr-4": {
