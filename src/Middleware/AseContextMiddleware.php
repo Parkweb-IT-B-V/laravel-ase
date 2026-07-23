@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use ParkWeb\Ase\Client;
 use ParkWeb\Ase\Laravel\Context;
 use Symfony\Component\HttpFoundation\Response;
+use Throwable;
 
 final readonly class AseContextMiddleware
 {
@@ -26,7 +27,14 @@ final readonly class AseContextMiddleware
                 $scope->setTag('release', (string) config('ase.release'));
             }
 
-            return $next($request);
+            try {
+                return $next($request);
+            } catch (Throwable $throwable) {
+                $this->client->captureException($throwable);
+                $this->client->flush();
+
+                throw $throwable;
+            }
         });
     }
 }

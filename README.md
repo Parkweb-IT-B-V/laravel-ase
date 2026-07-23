@@ -7,6 +7,13 @@ composer require parkweb/ase-laravel php-http/discovery guzzlehttp/guzzle nyholm
 php artisan vendor:publish --tag=ase-config
 ```
 
+If you installed an earlier local path version, run:
+
+```bash
+composer update parkweb/ase-php parkweb/ase-laravel guzzlehttp/guzzle nyholm/psr7 php-http/discovery
+php artisan optimize:clear
+```
+
 Configure:
 
 ```env
@@ -34,7 +41,7 @@ return [
 
 What is captured automatically:
 
-- unhandled exceptions and fatal shutdown errors;
+- unhandled HTTP exceptions and fatal shutdown errors;
 - warnings when `capture_warnings` is enabled;
 - authenticated user id/email;
 - request URL, method and route;
@@ -42,6 +49,11 @@ What is captured automatically:
 - Laravel version, PHP version, environment, release and deploy id;
 - queue failures with job metadata;
 - command/scheduler failures via failed command exit codes.
+
+Transport note:
+
+- `ASE_TRANSPORT=sync` sends during the request and is easiest for testing.
+- `ASE_TRANSPORT=queue` only sends when an `ase` queue worker is running.
 
 Safety:
 
