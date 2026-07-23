@@ -94,3 +94,43 @@ Ase::setTag('tenant', 'acme');
 Ase::captureMessage('Checkout degraded', Level::Warning);
 Ase::captureException($throwable);
 ```
+
+## Laravel logging channel
+
+Add an ASE channel to `config/logging.php`:
+
+```php
+'channels' => [
+    'ase' => [
+        'driver' => 'custom',
+        'via' => ParkWeb\Ase\Laravel\Logging\AseLogger::class,
+        'level' => env('ASE_LOG_LEVEL', 'warning'),
+        'bubble' => true,
+    ],
+],
+```
+
+Use it directly:
+
+```php
+Log::channel('ase')->warning('Checkout latency is high', [
+    'tenant' => 'acme',
+    'duration_ms' => 1840,
+]);
+
+Log::channel('ase')->error('Payment failed', [
+    'exception' => $throwable,
+]);
+```
+
+Or add it to an existing stack:
+
+```php
+'stack' => [
+    'driver' => 'stack',
+    'channels' => ['single', 'ase'],
+    'ignore_exceptions' => false,
+],
+```
+
+The log channel maps Laravel/Monolog levels to ASE levels and sends context as `extra`. Add `['ase_skip' => true]` to a log context if you explicitly want to avoid ASE capture for that record.

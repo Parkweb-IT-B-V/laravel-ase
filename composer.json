@@ -9,6 +9,7 @@
     "illuminate/support": "^10.0|^11.0|^12.0",
     "illuminate/contracts": "^10.0|^11.0|^12.0",
     "guzzlehttp/guzzle": "^7.0",
+    "monolog/monolog": "^3.0",
     "nyholm/psr7": "^1.8",
     "php-http/discovery": "^1.20",
     "parkweb/ase-php": "^0.1.1"
