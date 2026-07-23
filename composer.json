@@ -1,6 +1,7 @@
 {
   "name": "parkweb/ase-laravel",
   "description": "Laravel integration for All Seeing Eye.",
+  "version": "0.1.0",
   "type": "library",
   "license": "proprietary",
   "require": {
