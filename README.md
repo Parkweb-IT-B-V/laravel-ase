@@ -48,6 +48,7 @@ return [
 What is captured automatically:
 
 - unhandled HTTP exceptions and fatal shutdown errors;
+- exceptions reported through Laravel's exception handler;
 - warnings when `capture_warnings` is enabled;
 - authenticated user id/email;
 - request URL, method and route;

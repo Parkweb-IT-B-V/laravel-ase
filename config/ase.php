@@ -18,4 +18,18 @@ return [
     'transport' => env('ASE_TRANSPORT', 'sync'), // sync|queue|buffer
     'queue' => env('ASE_QUEUE', 'ase'),
     'offline_buffer_path' => storage_path('framework/ase/offline-buffer.jsonl'),
+    'observability' => [
+        'requests' => env('ASE_TRACE_REQUESTS', true),
+        'outgoing_requests' => env('ASE_TRACE_OUTGOING_REQUESTS', true),
+        'notifications' => env('ASE_TRACE_NOTIFICATIONS', true),
+        'jobs' => env('ASE_TRACE_JOBS', true),
+        'queries' => env('ASE_TRACE_QUERIES', true),
+        'query_threshold_ms' => env('ASE_QUERY_THRESHOLD_MS', 100),
+        'mail' => env('ASE_TRACE_MAIL', true),
+        'commands' => env('ASE_TRACE_COMMANDS', true),
+        'cache' => env('ASE_TRACE_CACHE', true),
+        'scheduled_tasks' => env('ASE_TRACE_SCHEDULED_TASKS', true),
+        'include_query_bindings' => env('ASE_INCLUDE_QUERY_BINDINGS', false),
+        'ignored_paths' => ['api/v1/ingest/*'],
+    ],
 ];

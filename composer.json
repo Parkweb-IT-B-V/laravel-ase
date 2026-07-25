@@ -1,7 +1,7 @@
 {
   "name": "parkweb/ase-laravel",
   "description": "Laravel integration for All Seeing Eye.",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "type": "library",
   "license": "proprietary",
   "require": {
@@ -12,7 +12,7 @@
     "monolog/monolog": "^3.0",
     "nyholm/psr7": "^1.8",
     "php-http/discovery": "^1.20",
-    "parkweb/ase-php": "^0.1.2"
+    "parkweb/ase-php": "^0.1.3"
   },
   "autoload": {
     "psr-4": {

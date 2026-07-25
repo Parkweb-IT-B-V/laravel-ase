@@ -6,16 +6,24 @@ use Closure;
 use Illuminate\Http\Request;
 use ParkWeb\Ase\Client;
 use ParkWeb\Ase\Laravel\Context;
+use ParkWeb\Ase\Laravel\LaravelExceptionReporter;
+use ParkWeb\Ase\Laravel\Telemetry\LaravelTelemetryRecorder;
+use ParkWeb\Ase\Level;
 use Symfony\Component\HttpFoundation\Response;
 use Throwable;
 
 final readonly class AseContextMiddleware
 {
-    public function __construct(private Client $client) {}
+    public function __construct(
+        private Client $client,
+        private LaravelExceptionReporter $reporter,
+        private LaravelTelemetryRecorder $telemetry,
+    ) {}
 
     public function handle(Request $request, Closure $next): Response
     {
         return $this->client->withScope(function ($scope) use ($request, $next): Response {
+            $started = hrtime(true);
             $user = Context::user($request->user());
             if ($user !== null) {
                 $scope->setUser($user);
@@ -28,13 +36,36 @@ final readonly class AseContextMiddleware
             }
 
             try {
-                return $next($request);
+                $response = $next($request);
+                $this->captureRequest($request, $response, $started);
+
+                return $response;
             } catch (Throwable $throwable) {
-                $this->client->captureException($throwable);
-                $this->client->flush();
+                $this->reporter->capture($throwable);
 
                 throw $throwable;
             }
         });
+    }
+
+    private function captureRequest(Request $request, Response $response, int $started): void
+    {
+        foreach ((array) config('ase.observability.ignored_paths', []) as $path) {
+            if ($request->is((string) $path)) {
+                return;
+            }
+        }
+
+        $duration = (int) round((hrtime(true) - $started) / 1_000_000);
+        $status = $response->getStatusCode();
+
+        $this->telemetry->capture('requests', 'Laravel request handled', [
+            'method' => $request->method(),
+            'url' => $request->fullUrl(),
+            'route' => optional($request->route())->uri(),
+            'status' => $status,
+            'duration_ms' => $duration,
+            'memory_peak_mb' => round(memory_get_peak_usage(true) / 1048576, 2),
+        ], $status >= 500 ? Level::Error : ($status >= 400 ? Level::Warning : Level::Info));
     }
 }
