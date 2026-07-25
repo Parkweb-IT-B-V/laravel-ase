@@ -30,6 +30,9 @@ return [
         'cache' => env('ASE_TRACE_CACHE', true),
         'scheduled_tasks' => env('ASE_TRACE_SCHEDULED_TASKS', true),
         'include_query_bindings' => env('ASE_INCLUDE_QUERY_BINDINGS', false),
-        'ignored_paths' => ['api/v1/ingest/*'],
+        'ignored_paths' => array_values(array_filter(array_map(
+            'trim',
+            explode(',', env('ASE_TRACE_REQUEST_IGNORED_PATHS', 'api/v1/ingest/*,livewire/update,livewire/message/*'))
+        ))),
     ],
 ];

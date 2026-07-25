@@ -50,8 +50,13 @@ final readonly class AseContextMiddleware
 
     private function captureRequest(Request $request, Response $response, int $started): void
     {
-        foreach ((array) config('ase.observability.ignored_paths', []) as $path) {
-            if ($request->is((string) $path)) {
+        if (! (bool) config('ase.observability.requests', true)) {
+            return;
+        }
+
+        foreach ($this->ignoredPaths() as $path) {
+            $path = trim($path, " \t\n\r\0\x0B/");
+            if ($path !== '' && $request->is($path)) {
                 return;
             }
         }
@@ -67,5 +72,25 @@ final readonly class AseContextMiddleware
             'duration_ms' => $duration,
             'memory_peak_mb' => round(memory_get_peak_usage(true) / 1048576, 2),
         ], $status >= 500 ? Level::Error : ($status >= 400 ? Level::Warning : Level::Info));
+    }
+
+    /** @return array<int, string> */
+    private function ignoredPaths(): array
+    {
+        $configured = config('ase.observability.ignored_paths', []);
+        if (is_string($configured)) {
+            $configured = explode(',', $configured);
+        }
+
+        if (! is_array($configured)) {
+            $configured = [];
+        }
+
+        return array_values(array_unique(array_filter([
+            'api/v1/ingest/*',
+            'livewire/update',
+            'livewire/message/*',
+            ...array_map('strval', $configured),
+        ])));
     }
 }

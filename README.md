@@ -28,6 +28,20 @@ ASE_QUEUE=ase
 ASE_DEBUG=false
 ```
 
+Request telemetry can be disabled completely:
+
+```env
+ASE_TRACE_REQUESTS=false
+```
+
+Or keep request telemetry enabled but ignore noisy routes. Livewire update endpoints are ignored by default:
+
+```env
+ASE_TRACE_REQUEST_IGNORED_PATHS=api/v1/ingest/*,livewire/update,livewire/message/*
+```
+
+Use Laravel request path patterns without a leading slash. For example `admin/*` or `livewire/update`.
+
 Config file:
 
 ```php
