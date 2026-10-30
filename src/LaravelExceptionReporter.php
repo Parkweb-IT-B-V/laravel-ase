@@ -18,7 +18,7 @@ final class LaravelExceptionReporter
 
     public function capture(Throwable $throwable): void
     {
-        if ($this->reported->contains($throwable)) {
+        if ($this->reported->offsetExists($throwable)) {
             return;
         }
 
